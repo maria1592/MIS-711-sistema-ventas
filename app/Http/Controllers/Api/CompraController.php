@@ -328,15 +328,17 @@ class CompraController extends Controller
             ->activos()
             ->orderBy('nombre')
             ->get()
-            ->map(fn ($p) => [
-                'id' => $p->id,
-                'codigo' => $p->codigo,
-                'nombre' => $p->nombre,
-                'categoria' => $p->categoria?->nombre,
-                'precio_compra' => $p->precio_compra,
-                'stock' => $p->stock,
-                'unidad_medida' => $p->unidad_medida,
-            ]);
+            ->map(function (Producto $p) { // <- tipado explícito
+                return [
+                    'id' => $p->id,
+                    'codigo' => $p->codigo,
+                    'nombre' => $p->nombre,
+                    'categoria' => $p->categoria?->nombre,
+                    'precio_compra' => $p->precio_compra,
+                    'stock' => $p->stock,
+                    'unidad_medida' => $p->unidad_medida,
+                ];
+            });
 
         return response()->json(['success' => true, 'data' => $productos], 200);
     }
