@@ -9,7 +9,7 @@ class CalculatorServiceTest extends TestCase
 {
     public function test_increase_amount(): void
     {
-        $service = new CalculatorService();
+        $service = new CalculatorService;
 
         $result = $service->increase(100, 20);
 
@@ -18,7 +18,7 @@ class CalculatorServiceTest extends TestCase
 
     public function test_discount_amount(): void
     {
-        $service = new CalculatorService();
+        $service = new CalculatorService;
 
         $result = $service->discount(100, 30);
 

@@ -43,6 +43,7 @@ class Producto extends Model
         return $this->belongsTo(Categoria::class);
     }
 
+
     // Scope para productos activos
     public function scopeActivos($query)
     {

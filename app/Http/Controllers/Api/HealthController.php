@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers\Api;
 
-use Illuminate\Support\Facades\DB;
+// Corregido: Importaciones ordenadas alfabéticamente
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 
 class HealthController
 {
@@ -14,12 +15,12 @@ class HealthController
 
             return response()->json([
                 'status' => 'ok',
-                'database' => 'connected'
+                'database' => 'connected', // Corregido: trailing_comma_in_multiline
             ]);
         } catch (\Throwable $e) {
             return response()->json([
                 'status' => 'error',
-                'database' => 'disconnected'
+                'database' => 'disconnected', // Corregido: trailing_comma_in_multiline
             ], 500);
         }
     }
