@@ -4,20 +4,24 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Models\Cliente; // ✅ Importar el modelo correcto
 
 class ClienteResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        /** @var Cliente $cliente */
+        $cliente = $this->resource;
+
         return [
-            'id' => $this->id,
-            'codigo' => $this->codigo,
-            'nombre' => $this->persona->nombre_completo ?? null,
-            'telefono' => $this->persona->telefono ?? null,
-            'email' => $this->persona->email ?? null,
-            'dias_credito' => $this->dias_credito,
-            'credito_disponible' => $this->credito_disponible,
-            'estado' => $this->estado,
+            'id' => $cliente->id,
+            'codigo' => $cliente->codigo,
+            'nombre' => $cliente->persona->nombre_completo ?? null,
+            'telefono' => $cliente->persona->telefono ?? null,
+            'email' => $cliente->persona->email ?? null,
+            'dias_credito' => $cliente->dias_credito,
+            'credito_disponible' => $cliente->credito_disponible,
+            'estado' => $cliente->estado,
         ];
     }
 }

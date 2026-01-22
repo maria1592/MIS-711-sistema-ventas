@@ -4,20 +4,24 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Models\DetalleCompra; // ✅ Importar el modelo
 
 class DetalleCompraResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        /** @var DetalleCompra $detalle */
+        $detalle = $this->resource;
+
         return [
-            'id' => $this->id,
-            'producto_id' => $this->producto_id,
-            'producto_nombre' => $this->producto->nombre ?? null,
-            'cantidad' => $this->cantidad,
-            'precio_unitario' => $this->precio_unitario,
-            'porcentaje_descuento' => $this->porcentaje_descuento,
-            'subtotal' => $this->subtotal,
-            'total' => $this->total,
+            'id' => $detalle->id,
+            'producto_id' => $detalle->producto_id,
+            'producto_nombre' => $detalle->producto->nombre ?? null,
+            'cantidad' => $detalle->cantidad,
+            'precio_unitario' => $detalle->precio_unitario,
+            'porcentaje_descuento' => $detalle->porcentaje_descuento,
+            'subtotal' => $detalle->subtotal,
+            'total' => $detalle->total,
         ];
     }
 }

@@ -4,27 +4,33 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Models\Producto;
 
 class ProductoResource extends JsonResource
 {
+    /** @var Producto */
+    public $resource;
+
     public function toArray(Request $request): array
     {
+        $producto = $this->resource;
+
         return [
-            'id' => $this->id,
-            'codigo' => $this->codigo,
-            'nombre' => $this->nombre,
-            'descripcion' => $this->descripcion,
-            'categoria_id' => $this->categoria_id,
-            'categoria' => new CategoriaResource($this->whenLoaded('categoria')),
-            'precio_compra' => $this->precio_compra,
-            'precio_venta' => $this->precio_venta,
-            'stock' => $this->stock,
-            'stock_minimo' => $this->stock_minimo,
-            'unidad_medida' => $this->unidad_medida,
-            'imagen' => $this->imagen,
-            'imagen_url' => $this->imagen ? url('storage/'.$this->imagen) : null,
-            'estado' => $this->estado,
-            'created_at' => $this->created_at,
+            'id' => $producto->id,
+            'codigo' => $producto->codigo,
+            'nombre' => $producto->nombre,
+            'descripcion' => $producto->descripcion,
+            'categoria_id' => $producto->categoria_id,
+            'categoria' => new CategoriaResource($producto->whenLoaded('categoria')),
+            'precio_compra' => $producto->precio_compra,
+            'precio_venta' => $producto->precio_venta,
+            'stock' => $producto->stock,
+            'stock_minimo' => $producto->stock_minimo,
+            'unidad_medida' => $producto->unidad_medida,
+            'imagen' => $producto->imagen,
+            'imagen_url' => $producto->imagen ? url('storage/'.$producto->imagen) : null,
+            'estado' => $producto->estado,
+            'created_at' => $producto->created_at,
         ];
     }
 }
