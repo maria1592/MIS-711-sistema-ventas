@@ -4,31 +4,37 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Models\Venta;
 
 class VentaResource extends JsonResource
 {
+    /** @var Venta */
+    public $resource;
+
     public function toArray(Request $request): array
     {
+        $venta = $this->resource;
+
         return [
-            'id' => $this->id,
-            'codigo' => $this->codigo,
-            'cliente' => new ClienteResource($this->whenLoaded('cliente')),
-            'tipo_venta' => $this->tipo_venta,
-            'tipo_comprobante' => $this->tipo_comprobante,
-            'numero_comprobante' => $this->numero_comprobante,
-            'fecha_venta' => $this->fecha_venta->format('Y-m-d'),
-            'fecha_vencimiento' => $this->fecha_vencimiento?->format('Y-m-d'),
-            'subtotal' => $this->subtotal,
-            'porcentaje_impuesto' => $this->porcentaje_impuesto,
-            'impuesto' => $this->impuesto,
-            'porcentaje_descuento' => $this->porcentaje_descuento,
-            'descuento' => $this->descuento,
-            'total' => $this->total,
-            'estado' => $this->estado,
-            'observaciones' => $this->observaciones,
-            'detalles' => DetalleVentaResource::collection($this->whenLoaded('detalles')),
-            'can_edit' => $this->puede_editarse, // Accessor from model
-            'created_at' => $this->created_at->toIso8601String(),
+            'id' => $venta->id,
+            'codigo' => $venta->codigo,
+            'cliente' => new ClienteResource($venta->whenLoaded('cliente')),
+            'tipo_venta' => $venta->tipo_venta,
+            'tipo_comprobante' => $venta->tipo_comprobante,
+            'numero_comprobante' => $venta->numero_comprobante,
+            'fecha_venta' => $venta->fecha_venta->format('Y-m-d'),
+            'fecha_vencimiento' => $venta->fecha_vencimiento?->format('Y-m-d'),
+            'subtotal' => $venta->subtotal,
+            'porcentaje_impuesto' => $venta->porcentaje_impuesto,
+            'impuesto' => $venta->impuesto,
+            'porcentaje_descuento' => $venta->porcentaje_descuento,
+            'descuento' => $venta->descuento,
+            'total' => $venta->total,
+            'estado' => $venta->estado,
+            'observaciones' => $venta->observaciones,
+            'detalles' => DetalleVentaResource::collection($venta->whenLoaded('detalles')),
+            'can_edit' => $venta->puede_editarse, // Accessor del modelo
+            'created_at' => $venta->created_at->toIso8601String(),
         ];
     }
 }
