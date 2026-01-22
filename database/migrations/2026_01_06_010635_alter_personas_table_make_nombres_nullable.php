@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Schema;
 
 /**
  * Migración para hacer nullable la columna 'nombres' en tabla personas
- * 
+ *
  * Razón: Para proveedores/clientes con tipo de documento RUC (empresas),
  * no se requiere nombres personales ya que usan razon_social.
  * Solo las personas naturales (DNI, CE, PASAPORTE) necesitan nombres.
@@ -18,10 +18,11 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::getConnection()->getDriverName() !== 'sqlite') {
         Schema::table('personas', function (Blueprint $table) {
-            // Hacer nullable la columna nombres para permitir empresas
-            $table->string('nombres', 100)->nullable()->change();
+            $table->string('nombres')->nullable()->change();
         });
+    }
     }
 
     /**
@@ -29,9 +30,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        if (Schema::getConnection()->getDriverName() !== 'sqlite') {
         Schema::table('personas', function (Blueprint $table) {
-            // Revertir a NOT NULL (solo si no hay valores nulos)
-            $table->string('nombres', 100)->nullable(false)->change();
+            $table->string('nombres')->nullable(false)->change();
         });
+    }
     }
 };

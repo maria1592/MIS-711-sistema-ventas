@@ -14,12 +14,14 @@ use Illuminate\Support\Facades\Schema;
  *
  * @created 2026-01-05
  */
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Ejecuta la migración para crear la tabla personas
      */
     public function up(): void
     {
+         Schema::dropIfExists('personas');
         Schema::create('personas', function (Blueprint $table) {
             // Clave primaria autoincremental
             $table->id();

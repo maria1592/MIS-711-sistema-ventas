@@ -12,17 +12,19 @@ use App\Http\Controllers\Api\RolController;
 use App\Http\Controllers\Api\UsuarioController;
 use App\Http\Controllers\Api\VentaController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\HealthController;
 
 /*
 |--------------------------------------------------------------------------
 | API Routes
 |--------------------------------------------------------------------------
 */
-
+Route::get('/health', HealthController::class);
 Route::prefix('v1')->group(function () {
 
     // Auth Público
-    Route::post('auth/login', [AuthController::class, 'login']);
+   
+    Route::post('auth/login', [AuthController::class, 'login']);    
 
     // Rutas Protegidas
     Route::middleware('auth:sanctum')->group(function () {
