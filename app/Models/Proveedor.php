@@ -469,7 +469,7 @@ class Proveedor extends Model
      *
      * Debe llamarse cada vez que se confirma una orden de compra
      *
-     * @param  \Carbon\Carbon|string|null  $fecha  Fecha de la compra (default: hoy)
+      * @param  \Illuminate\Support\Carbon|string|null  $fecha
      */
     public function actualizarUltimaCompra(Carbon|string|null $fecha = null): bool
     {
