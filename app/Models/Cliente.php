@@ -109,6 +109,7 @@ class Cliente extends Model
         'credito_disponible',          // Crédito disponible calculado
         'tiene_credito_disponible',    // Booleano si tiene crédito
         'porcentaje_credito_usado',     // Porcentaje de uso del crédito
+        'cantidad_compras',
     ];
 
     /**
@@ -153,10 +154,16 @@ class Cliente extends Model
      *
      * @return HasMany
      */
-    /*public function ventas(): HasMany
+    public function ventas(): HasMany
     {
         return $this->hasMany(Venta::class, 'cliente_id');
-    }*/
+    }
+    
+    public function getCantidadComprasAttribute(): int
+    {
+        return $this->ventas()->count();
+    }
+
 
     /*
     |--------------------------------------------------------------------------

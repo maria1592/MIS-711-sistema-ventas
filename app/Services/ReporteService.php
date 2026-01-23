@@ -234,9 +234,10 @@ class ReporteService
             $query->where('categoria_id', $filtros['categoria_id']);
         }
 
-        if (! empty($filtros['stock_bajo']) && $filtros['stock_bajo']) {
+        if (! empty($filtros['stock_bajo'])) {
             $query->whereRaw('stock <= stock_minimo');
         }
+
 
         if (isset($filtros['estado']) && $filtros['estado'] !== '') {
             $query->where('estado', $filtros['estado'] === 'true' || $filtros['estado'] === '1');
@@ -320,16 +321,6 @@ class ReporteService
         }
 
         $proveedores = $query->orderBy('created_at', 'desc')->get();
-
-        // Agregar estadísticas de compras por proveedor
-        foreach ($proveedores as $proveedor) {
-            $proveedor->total_compras = Compra::where('proveedor_id', $proveedor->id)
-                ->where('estado', 'Completada')
-                ->sum('total');
-            $proveedor->cantidad_compras = Compra::where('proveedor_id', $proveedor->id)
-                ->where('estado', 'Completada')
-                ->count();
-        }
 
         return [
             'titulo' => 'Reporte de Proveedores',
