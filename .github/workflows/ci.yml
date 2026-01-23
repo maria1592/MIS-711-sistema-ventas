@@ -1,0 +1,109 @@
+name: CI Pipeline Sistema Ventas
+
+on:
+  push:
+    branches: ["main", "develop"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  backend_quality:
+    name: PHP Quality (Pint & PHPStan)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          extensions: mbstring, intl, pdo_pgsql, bcmath
+          tools: composer:v2
+
+      - name: Install Dependencies
+        run: composer install --prefer-dist --no-interaction
+
+      - name: Check Code Style (Pint)
+        run: ./vendor/bin/pint --test
+
+      - name: Static Analysis (PHPStan)
+        run: ./vendor/bin/phpstan analyse
+
+  backend_tests:
+    name: PHP Tests (Laravel)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: compras_ventas
+          POSTGRES_USER: compras_user
+          POSTGRES_PASSWORD: compras_pass
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U compras_user -d compras_ventas"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          extensions: mbstring, intl, pdo_pgsql
+
+      - name: Install Dependencies
+        run: composer install --prefer-dist --no-interaction
+
+      - name: Prepare Environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Run Migrations
+        run: php artisan migrate --force
+        env:
+          DB_CONNECTION: pgsql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
+          DB_DATABASE: compras_ventas
+          DB_USERNAME: compras_user
+          DB_PASSWORD: compras_pass
+
+      - name: Execute Tests
+        run: php artisan test
+        env:
+          DB_CONNECTION: pgsql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
+          DB_DATABASE: compras_ventas
+          DB_USERNAME: compras_user
+          DB_PASSWORD: compras_pass
+
+  frontend:
+    name: Node Quality & Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install JS Dependencies
+        run: npm ci
+
+      - name: Lint JS
+        run: npm run lint
+        continue-on-error: false
+
+      - name: Frontend Tests
+        run: npm run test --if-present
+
+      - name: Build Assets
+        run: npm run build

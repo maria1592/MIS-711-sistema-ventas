@@ -267,7 +267,7 @@ class Compra extends Model
             $ultimo = self::lockForUpdate()->orderBy('id', 'desc')->first();
             $numero = $ultimo ? (int) substr($ultimo->codigo, strlen(self::CODIGO_PREFIJO)) + 1 : 1;
 
-            return self::CODIGO_PREFIJO . str_pad((string) $numero, 6, '0', STR_PAD_LEFT);
+            return self::CODIGO_PREFIJO.str_pad((string) $numero, 6, '0', STR_PAD_LEFT);
         });
     }
 

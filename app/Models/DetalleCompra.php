@@ -155,10 +155,19 @@ class DetalleCompra extends Model
         });
 
         // Después de eliminar, recalcular totales de la compra
-       static::deleted(function (DetalleCompra $detalle) {
+        static::deleted(function (DetalleCompra $detalle) {
             if ($detalle->compra) {
                 $detalle->compra->calcularTotales();
             }
         });
+    }
+
+    /**
+     * Calcula el total del detalle de compra.
+     */
+    public function getTotalAttribute(): float
+    {
+        // Ejemplo: total = subtotal - descuento
+        return $this->subtotal - ($this->descuento ?? 0);
     }
 }

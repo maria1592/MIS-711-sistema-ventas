@@ -2,16 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-
-
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Modelo Proveedor
@@ -215,13 +213,12 @@ class Proveedor extends Model
      *
      * Un proveedor puede tener múltiples compras.
      * Preparado para el módulo de gestión de compras/órdenes de compra.
-     *
-     * @return HasMany
      */
     public function compras(): HasMany
     {
         return $this->hasMany(Compra::class, 'proveedor_id');
     }
+
     public function getCantidadComprasAttribute(): int
     {
         return $this->compras()
@@ -387,7 +384,7 @@ class Proveedor extends Model
             $numero = $ultimo ? (int) substr($ultimo->codigo, \strlen(self::CODIGO_PREFIJO)) + 1 : 1;
 
             // Formatear código con padding de ceros (6 dígitos)
-           return self::CODIGO_PREFIJO.\str_pad((string) $numero, 6, '0', STR_PAD_LEFT);
+            return self::CODIGO_PREFIJO.\str_pad((string) $numero, 6, '0', STR_PAD_LEFT);
         });
     }
 
@@ -468,8 +465,6 @@ class Proveedor extends Model
      * Actualiza la fecha de última compra
      *
      * Debe llamarse cada vez que se confirma una orden de compra
-     *
-      * @param  \Illuminate\Support\Carbon|string|null  $fecha
      */
     public function actualizarUltimaCompra(Carbon|string|null $fecha = null): bool
     {

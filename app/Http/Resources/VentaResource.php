@@ -2,9 +2,9 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Venta;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Models\Venta;
 
 class VentaResource extends JsonResource
 {
@@ -19,8 +19,8 @@ class VentaResource extends JsonResource
             'id' => $venta->id,
             'codigo' => $venta->codigo,
             'cliente' => ClienteResource::make(
-                    $this->whenLoaded('cliente')
-                ),
+                $this->whenLoaded('cliente')
+            ),
             'tipo_venta' => $venta->tipo_venta,
             'tipo_comprobante' => $venta->tipo_comprobante,
             'numero_comprobante' => $venta->numero_comprobante,
@@ -35,8 +35,8 @@ class VentaResource extends JsonResource
             'estado' => $venta->estado,
             'observaciones' => $venta->observaciones,
             'detalles' => DetalleVentaResource::collection(
-                    $this->whenLoaded('detalles')
-                ),
+                $this->whenLoaded('detalles')
+            ),
             'can_edit' => $venta->puede_editarse, // Accessor del modelo
             'created_at' => $venta->created_at->toIso8601String(),
         ];

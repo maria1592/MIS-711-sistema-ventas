@@ -2,9 +2,9 @@
 
 namespace App\Http\Resources;
 
+use App\Models\DetalleCompra;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
-use App\Models\DetalleCompra; // ✅ Importar el modelo
+use Illuminate\Http\Resources\Json\JsonResource; // ✅ Importar el modelo
 
 class DetalleCompraResource extends JsonResource
 {

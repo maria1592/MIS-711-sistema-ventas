@@ -238,7 +238,6 @@ class ReporteService
             $query->whereRaw('stock <= stock_minimo');
         }
 
-
         if (isset($filtros['estado']) && $filtros['estado'] !== '') {
             $query->where('estado', $filtros['estado'] === 'true' || $filtros['estado'] === '1');
         }

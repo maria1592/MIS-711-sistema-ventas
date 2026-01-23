@@ -2,9 +2,9 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Cliente;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
-use App\Models\Cliente; // ✅ Importar el modelo correcto
+use Illuminate\Http\Resources\Json\JsonResource; // ✅ Importar el modelo correcto
 
 class ClienteResource extends JsonResource
 {

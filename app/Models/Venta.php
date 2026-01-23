@@ -245,7 +245,6 @@ class Venta extends Model
                 $producto->save();
             }
 
-
             // Si es a crédito, usar crédito del cliente
             if ($this->es_credito) {
                 $this->cliente->usarCredito($this->total);
@@ -305,12 +304,11 @@ class Venta extends Model
     }
 
     public function diasParaVencimiento(): ?int
-        {
-            if (! $this->es_credito || ! $this->fecha_vencimiento) {
-                return null;
-            }
-
-            return (int) now()->diffInDays($this->fecha_vencimiento, false);
+    {
+        if (! $this->es_credito || ! $this->fecha_vencimiento) {
+            return null;
         }
 
+        return (int) now()->diffInDays($this->fecha_vencimiento, false);
+    }
 }

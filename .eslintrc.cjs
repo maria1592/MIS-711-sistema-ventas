@@ -1,9 +1,13 @@
 module.exports = {
   root: true,
-  env: { node: true },
+  "env": {
+    "browser": true,    // <--- ESTO LE DICE A ESLINT QUE EXISTE 'window' Y 'document'
+    "es2021": true,
+    "node": true
+  },
   extends: [
-    'plugin:vue/vue3-essential',
     'eslint:recommended',
+    'plugin:@typescript-eslint/recommended',
   ],
   parserOptions: { ecmaVersion: 'latest' }
 };
