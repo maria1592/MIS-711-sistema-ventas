@@ -4,34 +4,57 @@ on:
   push:
     branches: ["main", "productos-crud"]
   pull_request:
-    branches: ["main"]
+    branches: ["main", "productos-crud"]
 
 jobs:
-  backend_quality:
-    name: PHP Quality (Pint & PHPStan)
+  backend_lint:
+    name: Backend Lint (Pint)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+      - uses: shivammathur/setup-php@v2
         with:
           php-version: "8.3"
           extensions: mbstring, intl, pdo_pgsql, bcmath
-          tools: composer:v2
 
-      - name: Install Dependencies
-        run: composer install --prefer-dist --no-interaction
+      - uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.lock') }}
 
-      - name: Check Code Style (Pint)
-        run: ./vendor/bin/pint --test
+      - run: composer install --prefer-dist --no-interaction
 
-      - name: Static Analysis (PHPStan)
-        run: ./vendor/bin/phpstan analyse
+      - run: ./vendor/bin/pint --test
+
+
+  backend_static_analysis:
+    name: Backend Static Analysis (PHPStan)
+    runs-on: ubuntu-latest
+    needs: backend_lint
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          extensions: mbstring, intl, pdo_pgsql, bcmath
+
+      - uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.lock') }}
+
+      - run: composer install --prefer-dist --no-interaction
+
+      - run: ./vendor/bin/phpstan analyse
+
 
   backend_tests:
-    name: PHP Tests (Laravel)
+    name: Backend Tests (PostgreSQL)
     runs-on: ubuntu-latest
+    needs: backend_static_analysis
+
     services:
       postgres:
         image: postgres:16
@@ -46,25 +69,27 @@ jobs:
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
+
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+      - uses: shivammathur/setup-php@v2
         with:
           php-version: "8.3"
-          extensions: mbstring, intl, pdo_pgsql
+          extensions: mbstring, intl, pdo_pgsql, bcmath
 
-      - name: Install Dependencies
-        run: composer install --prefer-dist --no-interaction
+      - uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.lock') }}
 
-      - name: Prepare Environment
-        run: |
+      - run: composer install --prefer-dist --no-interaction
+
+      - run: |
           cp .env.example .env
           php artisan key:generate
 
-      - name: Run Migrations
-        run: php artisan migrate --force
+      - run: php artisan migrate --force
         env:
           DB_CONNECTION: pgsql
           DB_HOST: 127.0.0.1
@@ -73,8 +98,7 @@ jobs:
           DB_USERNAME: compras_user
           DB_PASSWORD: compras_pass
 
-      - name: Execute Tests
-        run: php artisan test
+      - run: php artisan test
         env:
           DB_CONNECTION: pgsql
           DB_HOST: 127.0.0.1
@@ -83,27 +107,62 @@ jobs:
           DB_USERNAME: compras_user
           DB_PASSWORD: compras_pass
 
-  frontend:
-    name: Node Quality & Build
+
+  frontend_lint:
+    name: Frontend Lint
     runs-on: ubuntu-latest
+    needs: backend_tests
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "npm"
 
-      - name: Install JS Dependencies
-        run: npm ci
+      - uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: npm-${{ hashFiles('package-lock.json') }}
 
-      - name: Lint JS
-        run: npm run lint
-        continue-on-error: false
+      - run: npm ci
+      - run: npm run lint
 
-      - name: Frontend Tests
-        run: npm run test --if-present
 
-      - name: Build Assets
-        run: npm run build
+  frontend_tests:
+    name: Frontend Tests
+    runs-on: ubuntu-latest
+    needs: frontend_lint
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: npm-${{ hashFiles('package-lock.json') }}
+
+      - run: npm ci
+      - run: npm run test --if-present
+
+
+  frontend_build:
+    name: Frontend Build
+    runs-on: ubuntu-latest
+    needs: frontend_tests
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: npm-${{ hashFiles('package-lock.json') }}
+
+      - run: npm ci
+      - run: npm run build
