@@ -18,7 +18,9 @@ class VentaResource extends JsonResource
         return [
             'id' => $venta->id,
             'codigo' => $venta->codigo,
-            'cliente' => new ClienteResource($venta->whenLoaded('cliente')),
+            'cliente' => ClienteResource::make(
+                    $this->whenLoaded('cliente')
+                ),
             'tipo_venta' => $venta->tipo_venta,
             'tipo_comprobante' => $venta->tipo_comprobante,
             'numero_comprobante' => $venta->numero_comprobante,
@@ -32,7 +34,9 @@ class VentaResource extends JsonResource
             'total' => $venta->total,
             'estado' => $venta->estado,
             'observaciones' => $venta->observaciones,
-            'detalles' => DetalleVentaResource::collection($venta->whenLoaded('detalles')),
+            'detalles' => DetalleVentaResource::collection(
+                    $this->whenLoaded('detalles')
+                ),
             'can_edit' => $venta->puede_editarse, // Accessor del modelo
             'created_at' => $venta->created_at->toIso8601String(),
         ];
