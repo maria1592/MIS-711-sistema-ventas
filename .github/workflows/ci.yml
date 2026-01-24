@@ -145,7 +145,12 @@ jobs:
           key: npm-${{ hashFiles('package-lock.json') }}
 
       - run: npm ci
+
       - run: npm run test --if-present
+        env:
+          LARAVEL_BYPASS_ENV_CHECK: 1
+          CI: true
+
 
 
   frontend_build:
