@@ -59,7 +59,7 @@ class Compra extends Model
     /**
      * Atributos asignables en masa
      *
-     * @var array<string>
+     * @var list<string>
      */
     protected $fillable = [
         'proveedor_id',
@@ -104,7 +104,7 @@ class Compra extends Model
     /**
      * Atributos computados agregados a JSON/array
      *
-     * @var array<string>
+     * @var list<string>
      */
     protected $appends = [
         'cantidad_items',
@@ -267,7 +267,7 @@ class Compra extends Model
             $ultimo = self::lockForUpdate()->orderBy('id', 'desc')->first();
             $numero = $ultimo ? (int) substr($ultimo->codigo, strlen(self::CODIGO_PREFIJO)) + 1 : 1;
 
-            return self::CODIGO_PREFIJO.str_pad($numero, 6, '0', STR_PAD_LEFT);
+            return self::CODIGO_PREFIJO.str_pad((string) $numero, 6, '0', STR_PAD_LEFT);
         });
     }
 
@@ -406,6 +406,6 @@ class Compra extends Model
             return null;
         }
 
-        return now()->diffInDays($this->fecha_vencimiento, false);
+        return (int) now()->diffInDays($this->fecha_vencimiento, false);
     }
 }

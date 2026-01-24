@@ -358,7 +358,7 @@ const inicializarDataTable = () => {
                     }
                     return [];
                 },
-                error: function(xhr, error, thrown) {
+                error: function(xhr, error) {
                     console.error('Error al cargar datos:', error);
                     Swal.fire({
                         icon: 'error',
@@ -458,7 +458,7 @@ const inicializarDataTable = () => {
                 }
             ],
             language: {
-                url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json'
+                url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json'
             },
             responsive: true,
             pageLength: 10,
@@ -506,7 +506,7 @@ const inicializarSelect2 = () => {
         if (select2Inicializado.value) {
             try {
                 $('#selectCategoria').select2('destroy');
-            } catch (e) {
+            } catch {
                 console.log('Select2 no estaba inicializado');
             }
         }

@@ -22,7 +22,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property float $subtotal
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read Compra $compra Relación con compra
+ * @property-read Compra|null $compra Relación con compra
  * @property-read Producto $producto Relación con producto
  * @property-read float $precio_base Precio base sin descuento
  */
@@ -40,7 +40,7 @@ class DetalleCompra extends Model
     /**
      * Atributos asignables en masa
      *
-     * @var array<string>
+     * @var list<string>
      */
     protected $fillable = [
         'compra_id',
@@ -70,7 +70,7 @@ class DetalleCompra extends Model
     /**
      * Atributos computados agregados a JSON/array
      *
-     * @var array<string>
+     * @var list<string>
      */
     protected $appends = [
         'precio_base',
@@ -160,5 +160,14 @@ class DetalleCompra extends Model
                 $detalle->compra->calcularTotales();
             }
         });
+    }
+
+    /**
+     * Calcula el total del detalle de compra.
+     */
+    public function getTotalAttribute(): float
+    {
+        // Ejemplo: total = subtotal - descuento
+        return $this->subtotal - ($this->descuento ?? 0);
     }
 }

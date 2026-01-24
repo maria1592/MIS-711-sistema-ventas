@@ -6,7 +6,9 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -80,7 +82,7 @@ class Proveedor extends Model
      * No incluye campos de auditoría (created_by, updated_by, deleted_by)
      * ya que se manejan mediante observadores o middleware.
      *
-     * @var array<string>
+     * @var list<string>
      */
     protected $fillable = [
         'persona_id',          // ID de la persona asociada
@@ -138,7 +140,7 @@ class Proveedor extends Model
      * IMPORTANTE: Puede afectar rendimiento en consultas masivas.
      * Considerar usar solo cuando sea necesario en APIs.
      *
-     * @var array<string>
+     * @var list<string>
      */
     protected $appends = [
         'credito_disponible',          // Crédito disponible calculado
@@ -211,13 +213,18 @@ class Proveedor extends Model
      *
      * Un proveedor puede tener múltiples compras.
      * Preparado para el módulo de gestión de compras/órdenes de compra.
-     *
-     * @return HasMany
      */
-    /*public function compras(): HasMany
+    public function compras(): HasMany
     {
         return $this->hasMany(Compra::class, 'proveedor_id');
-    }*/
+    }
+
+    public function getCantidadComprasAttribute(): int
+    {
+        return $this->compras()
+            ->where('estado', 'Completada')
+            ->count();
+    }
 
     /*
     |--------------------------------------------------------------------------
@@ -377,7 +384,7 @@ class Proveedor extends Model
             $numero = $ultimo ? (int) substr($ultimo->codigo, \strlen(self::CODIGO_PREFIJO)) + 1 : 1;
 
             // Formatear código con padding de ceros (6 dígitos)
-            return self::CODIGO_PREFIJO.\str_pad($numero, 6, '0', STR_PAD_LEFT);
+            return self::CODIGO_PREFIJO.\str_pad((string) $numero, 6, '0', STR_PAD_LEFT);
         });
     }
 
@@ -458,12 +465,12 @@ class Proveedor extends Model
      * Actualiza la fecha de última compra
      *
      * Debe llamarse cada vez que se confirma una orden de compra
-     *
-     * @param  \Carbon\Carbon|string|null  $fecha  Fecha de la compra (default: hoy)
      */
-    public function actualizarUltimaCompra($fecha = null): bool
+    public function actualizarUltimaCompra(Carbon|string|null $fecha = null): bool
     {
-        $this->ultima_compra = $fecha ?? now();
+        $this->ultima_compra = $fecha
+            ? Carbon::parse($fecha)
+            : now();
 
         return $this->save();
     }

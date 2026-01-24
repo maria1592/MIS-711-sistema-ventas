@@ -49,9 +49,7 @@ class AuthController extends Controller
 
             // Obtener roles y permisos para el frontend
             $roles = $user->roles->pluck('nombre');
-            $permisos = $user->roles->flatMap(function ($rol) {
-                return $rol->permisos;
-            })->pluck('slug')->unique();
+            $permisos = $user->getPermisos()->pluck('slug')->unique();
 
             return response()->json([
                 'success' => true,
@@ -102,9 +100,7 @@ class AuthController extends Controller
     {
         $user = $request->user();
         $roles = $user->roles->pluck('nombre');
-        $permisos = $user->roles->flatMap(function ($rol) {
-            return $rol->permisos;
-        })->pluck('slug')->unique();
+        $permisos = $user->getPermisos()->pluck('slug')->unique();
 
         return response()->json([
             'success' => true,

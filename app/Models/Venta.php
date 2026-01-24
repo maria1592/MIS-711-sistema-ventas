@@ -187,7 +187,7 @@ class Venta extends Model
             $ultimo = self::lockForUpdate()->orderBy('id', 'desc')->first();
             $numero = $ultimo ? (int) substr($ultimo->codigo, strlen(self::CODIGO_PREFIJO)) + 1 : 1;
 
-            return self::CODIGO_PREFIJO.str_pad($numero, 6, '0', STR_PAD_LEFT);
+            return self::CODIGO_PREFIJO.str_pad((string) $numero, 6, '0', STR_PAD_LEFT);
         });
     }
 
@@ -231,13 +231,13 @@ class Venta extends Model
         return DB::transaction(function () {
             // Reducir stock de productos
             foreach ($this->detalles as $detalle) {
+                /** @var \App\Models\Producto $producto */
                 $producto = $detalle->producto;
 
-                // Validar stock suficiente
                 if ($producto->stock < $detalle->cantidad) {
                     throw new \Exception(
                         "Stock insuficiente para el producto '{$producto->nombre}'. ".
-                            "Disponible: {$producto->stock}, Solicitado: {$detalle->cantidad}"
+                        "Disponible: {$producto->stock}, Solicitado: {$detalle->cantidad}"
                     );
                 }
 
@@ -251,12 +251,8 @@ class Venta extends Model
             }
 
             // Actualizar datos del cliente (si el modelo tiene estos métodos)
-            if (method_exists($this->cliente, 'actualizarUltimaCompra')) {
-                $this->cliente->actualizarUltimaCompra($this->fecha_venta);
-            }
-            if (method_exists($this->cliente, 'incrementarTotalCompras')) {
-                $this->cliente->incrementarTotalCompras($this->total);
-            }
+            $this->cliente->actualizarUltimaCompra($this->fecha_venta);
+            $this->cliente->incrementarTotalCompras($this->total);
 
             $this->estado = self::ESTADO_COMPLETADA;
 
@@ -279,7 +275,9 @@ class Venta extends Model
             if ($this->estado === self::ESTADO_COMPLETADA) {
                 // Devolver stock de productos
                 foreach ($this->detalles as $detalle) {
+                    /** @var \App\Models\Producto $producto */
                     $producto = $detalle->producto;
+
                     $producto->stock += $detalle->cantidad;
                     $producto->save();
                 }
@@ -311,6 +309,6 @@ class Venta extends Model
             return null;
         }
 
-        return now()->diffInDays($this->fecha_vencimiento, false);
+        return (int) now()->diffInDays($this->fecha_vencimiento, false);
     }
 }
