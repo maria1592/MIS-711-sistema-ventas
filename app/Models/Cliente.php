@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -59,7 +60,7 @@ class Cliente extends Model
      * Define los campos que pueden ser llenados mediante asignación masiva
      * para protección contra vulnerabilidades de asignación masiva
      *
-     * @var array<string>
+     * @var list<string>
      */
     protected $fillable = [
         'persona_id',          // ID de la persona asociada
@@ -103,12 +104,13 @@ class Cliente extends Model
      * Estos accessors se incluyen automáticamente en JSON/array
      * NOTA: Puede afectar rendimiento en consultas masivas
      *
-     * @var array<string>
+     * @var list<string>
      */
     protected $appends = [
         'credito_disponible',          // Crédito disponible calculado
         'tiene_credito_disponible',    // Booleano si tiene crédito
         'porcentaje_credito_usado',     // Porcentaje de uso del crédito
+        'cantidad_compras',
     ];
 
     /**
@@ -150,13 +152,16 @@ class Cliente extends Model
      *
      * Un cliente puede tener múltiples ventas.
      * Preparado para el módulo de gestión de ventas.
-     *
-     * @return HasMany
      */
-    /*public function ventas(): HasMany
+    public function ventas(): HasMany
     {
         return $this->hasMany(Venta::class, 'cliente_id');
-    }*/
+    }
+
+    public function getCantidadComprasAttribute(): int
+    {
+        return $this->ventas()->count();
+    }
 
     /*
     |--------------------------------------------------------------------------
@@ -282,7 +287,7 @@ class Cliente extends Model
             $numero = $ultimo ? (int) substr($ultimo->codigo, strlen(self::CODIGO_PREFIJO)) + 1 : 1;
 
             // Formatear código con padding de ceros
-            return self::CODIGO_PREFIJO.str_pad($numero, 6, '0', STR_PAD_LEFT);
+            return self::CODIGO_PREFIJO.str_pad((string) $numero, 6, '0', STR_PAD_LEFT);
         });
     }
 
@@ -357,11 +362,13 @@ class Cliente extends Model
      *
      * Debe llamarse cada vez que se confirma una venta
      *
-     * @param  \Carbon\Carbon|string|null  $fecha  Fecha de la compra (default: hoy)
+     * @param  Carbon|string|null  $fecha  Fecha de la compra (default: hoy)
      */
-    public function actualizarUltimaCompra($fecha = null): bool
+    public function actualizarUltimaCompra(Carbon|string|null $fecha = null): bool
     {
-        $this->ultima_compra = $fecha ?? now();
+        $this->ultima_compra = $fecha
+            ? Carbon::parse($fecha)
+            : now();
 
         return $this->save();
     }

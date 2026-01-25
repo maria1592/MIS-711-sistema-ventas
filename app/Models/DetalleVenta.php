@@ -86,14 +86,14 @@ class DetalleVenta extends Model
 
         // Después de guardar, recalcular totales de la venta
         static::saved(function (DetalleVenta $detalle) {
-            if ($detalle->venta) {
+            if ($detalle->venta instanceof \App\Models\Venta) {
                 $detalle->venta->calcularTotales();
             }
         });
 
         // Después de eliminar, recalcular totales de la venta
         static::deleted(function (DetalleVenta $detalle) {
-            if ($detalle->venta) {
+            if ($detalle->venta instanceof \App\Models\Venta) {
                 $detalle->venta->calcularTotales();
             }
         });

@@ -56,7 +56,7 @@ class Persona extends Model
      * Define los campos que pueden ser llenados mediante asignación masiva
      * para protección contra vulnerabilidades de asignación masiva
      *
-     * @var array<string>
+     * @var list<string>
      */
     protected $fillable = [
         'tipo_documento',      // Tipo de documento (DNI, RUC, CE, PASAPORTE)
@@ -97,7 +97,7 @@ class Persona extends Model
      * Estos accessors se incluyen automáticamente en JSON/array
      * NOTA: Puede afectar rendimiento en consultas masivas
      *
-     * @var array<string>
+     * @var list<string>
      */
     protected $appends = [
         'nombre_completo',    // Nombre completo calculado

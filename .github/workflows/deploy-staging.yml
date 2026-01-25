@@ -1,0 +1,79 @@
+name: CD Staging
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Install dependencies
+        run: composer install --no-dev --optimize-autoloader
+
+      - name: Build artifact
+        run: |
+          tar -czf app.tar.gz \
+            --warning=no-file-changed \
+            --ignore-failed-read \
+            --exclude=.git \
+            --exclude=node_modules \
+            --exclude=storage/logs \
+            .
+
+      - name: Verify artifact
+        run: ls -lh app.tar.gz
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app-build
+          path: app.tar.gz
+
+
+
+  deploy:
+    needs: build
+    # Se usa self-hosted runner porque el servidor staging está en IP privada,
+    # GitHub-hosted runners no pueden acceder a redes locales.
+    # runs-on: ubuntu-latest
+    runs-on: self-hosted
+    environment: tarea2
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: app-build
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to staging
+        run: |
+          TIMESTAMP=$(date +%Y%m%d%H%M%S)
+          RELEASE_DIR=${{ secrets.APP_PATH }}/releases/$TIMESTAMP
+
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "mkdir -p $RELEASE_DIR"
+
+          rsync -avz app.tar.gz ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:$RELEASE_DIR
+
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
+            cd $RELEASE_DIR &&
+            tar -xzf app.tar.gz &&
+            rm app.tar.gz &&
+            php artisan optimize:clear &&
+            php artisan migrate --force &&
+            ln -sfn $RELEASE_DIR ${{ secrets.APP_PATH }}/current
+          "
+
+      - name: Health check
+        run: curl -f ${{ secrets.HEALTH_URL }}

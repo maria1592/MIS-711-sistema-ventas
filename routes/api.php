@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoriaController;
 use App\Http\Controllers\Api\ClienteController;
 use App\Http\Controllers\Api\CompraController;
+use App\Http\Controllers\Api\HealthController;
 use App\Http\Controllers\Api\PermisoController;
 use App\Http\Controllers\Api\ProductoController;
 use App\Http\Controllers\Api\ProveedorController;
@@ -18,10 +19,11 @@ use Illuminate\Support\Facades\Route;
 | API Routes
 |--------------------------------------------------------------------------
 */
-
+Route::get('/health', HealthController::class);
 Route::prefix('v1')->group(function () {
 
     // Auth Público
+
     Route::post('auth/login', [AuthController::class, 'login']);
 
     // Rutas Protegidas
