@@ -18,12 +18,24 @@ jobs:
         run: composer install --no-dev --optimize-autoloader
 
       - name: Build artifact
-        run: tar -czf app.tar.gz .
+        run: |
+          tar -czf app.tar.gz \
+            --warning=no-file-changed \
+            --ignore-failed-read \
+            --exclude=.git \
+            --exclude=node_modules \
+            --exclude=storage/logs \
+            .
+
+      - name: Verify artifact
+        run: ls -lh app.tar.gz
 
       - uses: actions/upload-artifact@v4
         with:
           name: app-build
           path: app.tar.gz
+
+
 
   deploy:
     needs: build
